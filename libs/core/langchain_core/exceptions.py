@@ -1,25 +1,41 @@
-"""Custom **exceptions** for LangChain."""
+"""Custom **exceptions** for LangChain.
+
+All LangChain-specific exceptions inherit from :class:`LangChainException` so
+callers can catch the full family with a single ``except LangChainException``
+clause while still being able to narrow by sub-type when needed.
+
+Error codes
+-----------
+Some exceptions embed a machine-readable :class:`ErrorCode` value in their
+message (via :func:`create_message`).  The code is appended to the
+troubleshooting URL so users can jump directly to the relevant documentation.
+"""
 
 from enum import Enum
 from typing import Any
 
 
 class LangChainException(Exception):  # noqa: N818
-    """General LangChain exception."""
+    """Base class for all LangChain-specific exceptions.
+
+    Inheriting from this class lets callers catch any LangChain error with a
+    single ``except LangChainException`` clause without suppressing unrelated
+    exceptions from the Python standard library or third-party packages.
+    """
 
 
 class TracerException(LangChainException):
-    """Base class for exceptions in tracers module."""
+    """Raised by tracer implementations when recording a run fails."""
 
 
 class OutputParserException(ValueError, LangChainException):  # noqa: N818
-    """Exception that output parsers should raise to signify a parsing error.
+    """Raised by output parsers to signal a parsing error.
 
-    This exists to differentiate parsing errors from other code or execution errors
-    that also may arise inside the output parser.
-
-    `OutputParserException` will be available to catch and handle in ways to fix the
-    parsing error, while other errors will be raised.
+    This exception exists to distinguish parsing errors from other exceptions
+    that may arise inside an output parser (e.g. network errors or assertion
+    failures).  Downstream code — such as retry chains or agents — can catch
+    :class:`OutputParserException` specifically and attempt to fix the output,
+    while letting unexpected errors propagate normally.
     """
 
     def __init__(
@@ -29,24 +45,25 @@ class OutputParserException(ValueError, LangChainException):  # noqa: N818
         llm_output: str | None = None,
         send_to_llm: bool = False,  # noqa: FBT001,FBT002
     ):
-        """Create an `OutputParserException`.
+        """Create an ``OutputParserException``.
 
         Args:
-            error: The error that's being re-raised or an error message.
-            observation: String explanation of error which can be passed to a model to
-                try and remediate the issue.
-            llm_output: String model output which is error-ing.
-
-            send_to_llm: Whether to send the observation and llm_output back to an Agent
-                after an `OutputParserException` has been raised.
-
-                This gives the underlying model driving the agent the context that the
-                previous output was improperly structured, in the hopes that it will
-                update the output to the correct format.
+            error: The error that's being re-raised or an error message string.
+                If a plain string is passed it is wrapped with a troubleshooting
+                link via :func:`create_message`.
+            observation: Human-readable explanation of what went wrong.  When
+                *send_to_llm* is ``True`` this text is fed back to the model so
+                it can attempt to correct its output.
+            llm_output: The raw model output that failed to parse.  Sent back to
+                the model alongside *observation* when *send_to_llm* is ``True``.
+            send_to_llm: When ``True``, both *observation* and *llm_output* are
+                attached to the exception so that an agent can include them in
+                the next prompt.  Both arguments must be provided if this flag
+                is set.
 
         Raises:
-            ValueError: If `send_to_llm` is `True` but either observation or
-                `llm_output` are not provided.
+            ValueError: If *send_to_llm* is ``True`` but *observation* or
+                *llm_output* is ``None``.
         """
         if isinstance(error, str):
             error = create_message(
@@ -66,15 +83,37 @@ class OutputParserException(ValueError, LangChainException):  # noqa: N818
 
 
 class ContextOverflowError(LangChainException):
-    """Exception raised when input exceeds the model's context limit.
+    """Raised when the model's context window limit is exceeded.
 
-    This exception is raised by chat models when the input tokens exceed
-    the maximum context window supported by the model.
+    Chat model wrappers raise this exception when the number of input tokens
+    exceeds the maximum context length supported by the model.  Callers can
+    catch it to implement truncation, summarisation, or fallback strategies.
     """
 
 
 class ErrorCode(Enum):
-    """Error codes."""
+    """Machine-readable codes that identify the category of a LangChain error.
+
+    Each code is appended to the troubleshooting URL generated by
+    :func:`create_message` so users can navigate directly to the relevant
+    documentation page.
+
+    Attributes:
+        INVALID_PROMPT_INPUT: The values supplied to fill a prompt template are
+            invalid (e.g. wrong type, missing required variable).
+        INVALID_TOOL_RESULTS: Tool results passed back to the model are
+            malformed.  Defined for parity with the JS SDK.
+        MESSAGE_COERCION_FAILURE: A value could not be coerced into a
+            :class:`~langchain_core.messages.BaseMessage`.
+        MODEL_AUTHENTICATION: API key or credential is missing or invalid.
+            Defined for parity with the JS SDK.
+        MODEL_NOT_FOUND: The requested model does not exist or is not
+            accessible.  Defined for parity with the JS SDK.
+        MODEL_RATE_LIMIT: The model provider returned a rate-limit response.
+            Defined for parity with the JS SDK.
+        OUTPUT_PARSING_FAILURE: An output parser could not parse the model's
+            response into the expected structure.
+    """
 
     INVALID_PROMPT_INPUT = "INVALID_PROMPT_INPUT"
     INVALID_TOOL_RESULTS = "INVALID_TOOL_RESULTS"  # Used in JS; not Py (yet)
@@ -86,23 +125,28 @@ class ErrorCode(Enum):
 
 
 def create_message(*, message: str, error_code: ErrorCode) -> str:
-    """Create a message with a link to the LangChain troubleshooting guide.
+    """Build an error message that includes a link to the troubleshooting guide.
+
+    Appends a URL constructed from *error_code* to *message* so that the
+    resulting string, when used as an exception message, gives users a direct
+    path to actionable documentation.
 
     Args:
-        message: The message to display.
-        error_code: The error code to display.
+        message: The human-readable description of the error.
+        error_code: The :class:`ErrorCode` that categorises the error.  Its
+            value is appended to the base documentation URL.
 
     Returns:
-        The full message with the troubleshooting link.
+        A single string combining *message* and the troubleshooting URL.
 
     Example:
-        ```python
-        create_message(
-            message="Failed to parse output",
-            error_code=ErrorCode.OUTPUT_PARSING_FAILURE,
-        )
-        "Failed to parse output. For troubleshooting, visit: ..."
-        ```
+        .. code-block:: python
+
+            create_message(
+                message="Failed to parse output",
+                error_code=ErrorCode.OUTPUT_PARSING_FAILURE,
+            )
+            # "Failed to parse output\nFor troubleshooting, visit: ..."
     """
     return (
         f"{message}\n"
