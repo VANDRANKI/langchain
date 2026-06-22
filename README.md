@@ -77,6 +77,38 @@ LangChain helps developers build applications powered by LLMs through a standard
 
 **Discussions**: Visit the [LangChain Forum](https://forum.langchain.com) to connect with the community and share all of your technical questions, ideas, and feedback.
 
+## Development
+
+This monorepo uses `uv` for dependency management. Each package under `libs/` has its own `pyproject.toml` and virtual environment.
+
+```bash
+# Install dependencies for a specific package (e.g. langchain-core)
+cd libs/core
+uv sync --all-groups
+
+# Run tests
+make test
+
+# Lint and format
+make lint
+make format
+```
+
+### Running Type Checks
+
+All contributions must pass static type checking with `mypy`. Run type checks from within the relevant package directory:
+
+```bash
+# From a package directory (e.g. libs/core)
+uv run --group lint mypy .
+
+# Or using make
+make lint  # runs ruff + mypy together
+```
+
+> [!TIP]
+> If you add new public APIs or modify existing function signatures, always run mypy locally before opening a PR. CI enforces type correctness, and catching issues early saves review cycles.
+
 ## Additional resources
 
 - [Contributing Guide](https://docs.langchain.com/oss/python/contributing/overview) – Learn how to contribute to LangChain projects and find good first issues.
