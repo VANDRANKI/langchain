@@ -134,6 +134,44 @@ class Chain(RunnableSerializable[dict[str, Any], dict[str, Any]], ABC):
         config: RunnableConfig | None = None,
         **kwargs: Any,
     ) -> dict[str, Any]:
+        """Invoke the chain synchronously with the given input.
+
+        This is the primary execution method for the `Chain` interface. It handles
+        callback lifecycle management (``on_chain_start`` / ``on_chain_end`` /
+        ``on_chain_error``), memory loading and saving, and input/output validation
+        before and after the core ``_call`` implementation.
+
+        Args:
+            input: A dictionary of inputs keyed by the names declared in
+                `Chain.input_keys`. A single non-dict value is accepted when the
+                chain has exactly one input key.
+            config: Optional `RunnableConfig` carrying callbacks, tags, metadata,
+                and a run name for this invocation.
+            **kwargs: Additional keyword arguments forwarded to internal helpers.
+                Recognized keys:
+
+                - ``return_only_outputs`` (`bool`): When `True`, only newly generated
+                  output keys are returned; input keys are omitted from the result.
+                  Defaults to `False`.
+                - ``include_run_info`` (`bool`): When `True`, a `RunInfo` object
+                  containing the run ID is added to the output under the key defined
+                  by `RUN_KEY`. Defaults to `False`.
+
+        Returns:
+            A dictionary of outputs keyed by the names declared in
+            `Chain.output_keys`, optionally merged with the input dict when
+            ``return_only_outputs`` is `False`.
+
+        Raises:
+            ValueError: If required input keys are missing or output keys are absent
+                from the result returned by `_call`.
+
+        Example:
+            ```python
+            result = chain.invoke({"question": "What is the capital of France?"})
+            print(result["answer"])  # -> "Paris"
+            ```
+        """
         config = ensure_config(config)
         callbacks = config.get("callbacks")
         tags = config.get("tags")
@@ -190,6 +228,45 @@ class Chain(RunnableSerializable[dict[str, Any], dict[str, Any]], ABC):
         config: RunnableConfig | None = None,
         **kwargs: Any,
     ) -> dict[str, Any]:
+        """Invoke the chain asynchronously with the given input.
+
+        Async counterpart to `invoke`. Manages the async callback lifecycle
+        (``on_chain_start`` / ``on_chain_end`` / ``on_chain_error``), async memory
+        loading and saving, and input/output validation. Delegates to ``_acall``
+        for the actual chain logic; if a subclass does not override ``_acall``,
+        the default implementation runs ``_call`` in an executor.
+
+        Args:
+            input: A dictionary of inputs keyed by the names declared in
+                `Chain.input_keys`. A single non-dict value is accepted when the
+                chain has exactly one input key.
+            config: Optional `RunnableConfig` carrying callbacks, tags, metadata,
+                and a run name for this invocation.
+            **kwargs: Additional keyword arguments forwarded to internal helpers.
+                Recognized keys:
+
+                - ``return_only_outputs`` (`bool`): When `True`, only newly generated
+                  output keys are returned; input keys are omitted from the result.
+                  Defaults to `False`.
+                - ``include_run_info`` (`bool`): When `True`, a `RunInfo` object
+                  containing the run ID is added to the output under the key defined
+                  by `RUN_KEY`. Defaults to `False`.
+
+        Returns:
+            A dictionary of outputs keyed by the names declared in
+            `Chain.output_keys`, optionally merged with the input dict when
+            ``return_only_outputs`` is `False`.
+
+        Raises:
+            ValueError: If required input keys are missing or output keys are absent
+                from the result returned by `_acall`.
+
+        Example:
+            ```python
+            result = await chain.ainvoke({"question": "What is the capital of France?"})
+            print(result["answer"])  # -> "Paris"
+            ```
+        """
         config = ensure_config(config)
         callbacks = config.get("callbacks")
         tags = config.get("tags")
