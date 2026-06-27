@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
+from collections.abc import Sequence
 from typing import TYPE_CHECKING
 
 from pydantic import BaseModel, Field
@@ -16,7 +17,7 @@ from langchain_core.messages import (
 from langchain_core.runnables.config import run_in_executor
 
 if TYPE_CHECKING:
-    from collections.abc import Sequence
+    pass
 
 
 class BaseChatMessageHistory(ABC):
@@ -105,7 +106,7 @@ class BaseChatMessageHistory(ABC):
         layer.
 
         Returns:
-            The messages.
+            The messages stored in this history instance.
         """
         return await run_in_executor(None, lambda: self.messages)
 
@@ -120,7 +121,9 @@ class BaseChatMessageHistory(ABC):
         This method may be deprecated in a future release.
 
         Args:
-            message: The `HumanMessage` to add to the store.
+            message: The human message to add. Accepts either a raw string
+                (which will be wrapped in a `HumanMessage`) or a `HumanMessage`
+                instance directly.
         """
         if isinstance(message, HumanMessage):
             self.add_message(message)
@@ -138,7 +141,9 @@ class BaseChatMessageHistory(ABC):
         This method may be deprecated in a future release.
 
         Args:
-            message: The `AIMessage` to add.
+            message: The AI message to add. Accepts either a raw string
+                (which will be wrapped in an `AIMessage`) or an `AIMessage`
+                instance directly.
         """
         if isinstance(message, AIMessage):
             self.add_message(message)
@@ -147,6 +152,10 @@ class BaseChatMessageHistory(ABC):
 
     def add_message(self, message: BaseMessage) -> None:
         """Add a Message object to the store.
+
+        Subclasses should prefer overriding `add_messages` for bulk efficiency.
+        This method delegates to `add_messages` when the subclass provides its own
+        implementation, falling back to a `NotImplementedError` otherwise.
 
         Args:
             message: A `BaseMessage` object to store.
@@ -195,14 +204,20 @@ class BaseChatMessageHistory(ABC):
         await run_in_executor(None, self.clear)
 
     def __str__(self) -> str:
-        """Return a string representation of the chat history."""
+        """Return a string representation of the chat history.
+
+        Returns:
+            A human-readable buffer string of all stored messages.
+        """
         return get_buffer_string(self.messages)
 
 
 class InMemoryChatMessageHistory(BaseChatMessageHistory, BaseModel):
     """In memory implementation of chat message history.
 
-    Stores messages in a memory list.
+    Stores messages in a memory list. All messages are lost when the
+    object is garbage collected. Suitable for development and testing;
+    prefer a persistent backend for production use-cases.
     """
 
     messages: list[BaseMessage] = Field(default_factory=list)
@@ -211,36 +226,54 @@ class InMemoryChatMessageHistory(BaseChatMessageHistory, BaseModel):
     async def aget_messages(self) -> list[BaseMessage]:
         """Async version of getting messages.
 
-        Can over-ride this method to provide an efficient async implementation.
-
-        In general, fetching messages may involve IO to the underlying persistence
-        layer.
+        Returns messages directly from memory without any I/O overhead.
 
         Returns:
-            List of messages.
+            List of all messages stored in memory.
         """
         return self.messages
 
     def add_message(self, message: BaseMessage) -> None:
-        """Add a self-created message to the store.
+        """Append a single message to the in-memory store.
 
         Args:
-            message: The message to add.
+            message: The `BaseMessage` instance to append.
         """
         self.messages.append(message)
 
-    async def aadd_messages(self, messages: Sequence[BaseMessage]) -> None:
-        """Async add messages to the store.
+    def add_messages(self, messages: Sequence[BaseMessage]) -> None:
+        """Append multiple messages to the in-memory store in a single operation.
+
+        Overrides the base class implementation for efficiency: avoids per-message
+        dispatch and appends all messages in one pass.
 
         Args:
-            messages: The messages to add.
+            messages: A sequence of `BaseMessage` objects to append.
+        """
+        self.messages.extend(messages)
+
+    async def aadd_messages(self, messages: Sequence[BaseMessage]) -> None:
+        """Async add messages to the in-memory store.
+
+        Delegates directly to the synchronous `add_messages` since no I/O is involved.
+
+        Args:
+            messages: A sequence of `BaseMessage` objects to append.
         """
         self.add_messages(messages)
 
     def clear(self) -> None:
-        """Clear all messages from the store."""
+        """Clear all messages from the in-memory store."""
         self.messages = []
 
     async def aclear(self) -> None:
-        """Async clear all messages from the store."""
+        """Async clear all messages from the in-memory store."""
         self.clear()
+
+    def __len__(self) -> int:
+        """Return the number of messages in the history.
+
+        Returns:
+            The count of stored messages.
+        """
+        return len(self.messages)
