@@ -124,7 +124,7 @@ class ImageURL(TypedDict, total=False):
     detail: Literal["auto", "low", "high"]
     """Specifies the detail level of the image.
 
-    Defaults to ``'auto'`` if not specified. Higher detail levels consume
+    Defaults to `'auto'` if not specified. Higher detail levels consume
     more tokens but provide better image understanding.
     """
 
