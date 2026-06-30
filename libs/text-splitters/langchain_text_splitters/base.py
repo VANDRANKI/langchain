@@ -331,7 +331,7 @@ class TokenTextSplitter(TextSplitter):
         if not _HAS_TIKTOKEN:
             msg = (
                 "Could not import tiktoken python package. "
-                "This is needed in order to for TokenTextSplitter. "
+                "This is needed in order to use TokenTextSplitter. "
                 "Please install it with `pip install tiktoken`."
             )
             raise ImportError(msg)
