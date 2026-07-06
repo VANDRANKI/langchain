@@ -701,7 +701,7 @@ def test_chroma_legacy_batching() -> None:
 
 
 def test_create_collection_if_not_exist_default() -> None:
-    """Tests existing behaviour without the new create_collection_if_not_exists flag."""
+    """Tests existing behavior without the new create_collection_if_not_exists flag."""
     texts = ["foo", "bar", "baz"]
     docsearch = Chroma.from_texts(
         collection_name="test_collection",
