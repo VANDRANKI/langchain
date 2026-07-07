@@ -181,7 +181,7 @@ def _parse_json(
     Returns:
         Parsed JSON object.
     """
-    # Strip whitespace,newlines,backtick from the start and end
+    # Strip whitespace, newlines, and backtick characters from the start and end
     json_str = json_str.strip(_json_strip_chars)
 
     # handle newlines and other special characters inside the returned value
