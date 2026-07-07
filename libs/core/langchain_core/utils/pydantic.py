@@ -119,6 +119,9 @@ def is_basemodel_instance(obj: Any) -> bool:
     * `pydantic.BaseModel` in Pydantic 2.x
     * `pydantic.v1.BaseModel` in Pydantic 2.x
 
+    Args:
+        obj: The object to check.
+
     Returns:
         `True` if the given class is an instance of Pydantic `BaseModel`.
     """
