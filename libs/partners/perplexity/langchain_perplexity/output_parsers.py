@@ -82,6 +82,12 @@ class ReasoningStructuredOutputParser(
                 If `True`, the output will be a JSON object containing
                 all the keys that have been returned so far.
                 If `False`, the output will be the full JSON object.
+
+        Returns:
+            The parsed Pydantic object.
+
+        Raises:
+            OutputParserException: If the output is not valid JSON.
         """
         text = result[0].text
         text = strip_think_tags(text)
