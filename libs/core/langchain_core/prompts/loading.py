@@ -19,13 +19,13 @@ logger = logging.getLogger(__name__)
 
 
 def _validate_path(path: Path) -> None:
-    """Reject absolute paths and ``..`` traversal components.
+    """Reject absolute paths and `..` traversal components.
 
     Args:
         path: The path to validate.
 
     Raises:
-        ValueError: If the path is absolute or contains ``..`` components.
+        ValueError: If the path is absolute or contains `..` components.
     """
     if path.is_absolute():
         msg = (
