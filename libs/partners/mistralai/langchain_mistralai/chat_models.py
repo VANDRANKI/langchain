@@ -116,7 +116,7 @@ def _is_valid_mistral_tool_call_id(tool_call_id: str) -> bool:
 
 
 def _base62_encode(num: int) -> str:
-    """Encode a number in base62 and ensures result is of a specified length."""
+    """Encode a number in base62 and ensure the result has a specified length."""
     base62 = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
     if num == 0:
         return base62[0]
