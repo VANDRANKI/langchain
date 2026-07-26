@@ -76,7 +76,6 @@ class MistralAIEmbeddings(BaseModel, Embeddings):
         api_key:
             The API key for the MistralAI API. If not provided, it will be read from the
             environment variable `MISTRAL_API_KEY`.
-        max_concurrent_requests: int
         max_retries:
             The number of times to retry a request if it fails.
         timeout:
