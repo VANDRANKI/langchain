@@ -391,7 +391,16 @@ class StringPromptTemplate(BasePromptTemplate, ABC):
 
 
 def is_subsequence(child: Sequence, parent: Sequence) -> bool:
-    """Return `True` if child is subsequence of parent."""
+    """Return `True` if child is subsequence of parent.
+
+    Args:
+        child: The sequence to check for as a leading subsequence.
+        parent: The sequence to check against.
+
+    Returns:
+        `True` if `child` is non-empty and matches the first `len(child)`
+        elements of `parent` in order, `False` otherwise.
+    """
     if len(child) == 0 or len(parent) == 0:
         return False
     if len(parent) < len(child):
