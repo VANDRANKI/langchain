@@ -41,7 +41,19 @@ class SpacyTextSplitter(TextSplitter):
         strip_whitespace: bool = True,
         **kwargs: Any,
     ) -> None:
-        """Initialize the spacy text splitter."""
+        """Initialize the spacy text splitter.
+
+        Args:
+            separator: The separator to use when combining splits.
+            pipeline: The name of the `spacy` pipeline to use.
+            max_length: The maximum character length spacy will process. Increase
+                this for large files.
+            strip_whitespace: Whether to strip whitespace from the split
+                sentences.
+
+        Raises:
+            ImportError: If `spacy` is not installed.
+        """
         super().__init__(**kwargs)
         self._tokenizer = _make_spacy_pipeline_for_splitting(
             pipeline, max_length=max_length
