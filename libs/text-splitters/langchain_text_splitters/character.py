@@ -17,7 +17,14 @@ class CharacterTextSplitter(TextSplitter):
         is_separator_regex: bool = False,  # noqa: FBT001,FBT002
         **kwargs: Any,
     ) -> None:
-        """Create a new TextSplitter."""
+        """Create a new TextSplitter.
+
+        Args:
+            separator: The separator to split on.
+            is_separator_regex: Whether the separator is already a regex
+                pattern, rather than a literal string to escape.
+            **kwargs: Additional arguments to pass to the parent `TextSplitter`.
+        """
         super().__init__(**kwargs)
         self._separator = separator
         self._is_separator_regex = is_separator_regex
