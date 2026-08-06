@@ -58,10 +58,10 @@ def load_prompt_from_config(
 
     Args:
         config: Dict containing the prompt configuration.
-        allow_dangerous_paths: If ``False`` (default), file paths in the
-            config (such as ``template_path``, ``examples``, and
-            ``example_prompt_path``) are validated to reject absolute paths
-            and directory traversal (``..``) sequences. Set to ``True`` only
+        allow_dangerous_paths: If `False` (default), file paths in the
+            config (such as `template_path`, `examples`, and
+            `example_prompt_path`) are validated to reject absolute paths
+            and directory traversal (`..`) sequences. Set to `True` only
             if you trust the source of the config.
 
     Returns:
@@ -218,10 +218,10 @@ def load_prompt(
     Args:
         path: Path to the prompt file.
         encoding: Encoding of the file.
-        allow_dangerous_paths: If ``False`` (default), file paths referenced
-            inside the loaded config (such as ``template_path``, ``examples``,
-            and ``example_prompt_path``) are validated to reject absolute paths
-            and directory traversal (``..``) sequences. Set to ``True`` only
+        allow_dangerous_paths: If `False` (default), file paths referenced
+            inside the loaded config (such as `template_path`, `examples`,
+            and `example_prompt_path`) are validated to reject absolute paths
+            and directory traversal (`..`) sequences. Set to `True` only
             if you trust the source of the config.
 
     Returns:
