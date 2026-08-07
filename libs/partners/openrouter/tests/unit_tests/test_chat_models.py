@@ -2338,7 +2338,7 @@ class TestFormatMessageContent:
         assert result[0]["video_url"]["url"].startswith("data:video/mp4;base64,")
 
     def test_video_base64_source_type_format(self) -> None:
-        """Test video block using ``source_type`` + ``data`` keys."""
+        """Test video block using `source_type` + `data` keys."""
         block: dict[str, Any] = {
             "type": "video",
             "source_type": "base64",
@@ -2413,7 +2413,7 @@ class TestFormatMessageContent:
         }
 
     def test_file_base64_source_type_format(self) -> None:
-        """Test file block using ``source_type`` + ``data`` keys."""
+        """Test file block using `source_type` + `data` keys."""
         block: dict[str, Any] = {
             "type": "file",
             "source_type": "base64",
