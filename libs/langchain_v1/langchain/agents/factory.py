@@ -58,9 +58,9 @@ from langchain.chat_models import init_chat_model
 
 @dataclass
 class _ComposedExtendedModelResponse(Generic[ResponseT]):
-    """Internal result from composed ``wrap_model_call`` middleware.
+    """Internal result from composed `wrap_model_call` middleware.
 
-    Unlike ``ExtendedModelResponse`` (user-facing, single command), this holds the
+    Unlike `ExtendedModelResponse` (user-facing, single command), this holds the
     full list of commands accumulated across all middleware layers during
     composition.
     """
@@ -135,7 +135,7 @@ Option 2: Handle dynamic tools in middleware (for tools created at runtime)
 
 
 def _scrub_inputs(inputs: dict[str, Any]) -> dict[str, Any]:
-    """Remove ``runtime`` and ``handler`` from trace inputs before sending to LangSmith."""
+    """Remove `runtime` and `handler` from trace inputs before sending to LangSmith."""
     filtered = inputs.copy()
     filtered.pop("handler", None)
     req = filtered.get("request")
@@ -164,8 +164,8 @@ def _normalize_to_model_response(
 ) -> ModelResponse:
     """Normalize middleware return value to ModelResponse.
 
-    At inner composition boundaries, ``ExtendedModelResponse`` is unwrapped to its
-    underlying ``ModelResponse`` so that inner middleware always sees ``ModelResponse``
+    At inner composition boundaries, `ExtendedModelResponse` is unwrapped to its
+    underlying `ModelResponse` so that inner middleware always sees `ModelResponse`
     from the handler.
     """
     if isinstance(result, AIMessage):
@@ -191,7 +191,7 @@ def _build_commands(
             composition (inner-first ordering).
 
     Returns:
-        List of ``Command`` objects ready to be returned from a model node.
+        List of `Command` objects ready to be returned from a model node.
     """
     state: dict[str, Any] = {"messages": model_response.result}
 
@@ -220,7 +220,7 @@ def _build_commands(
 def _chain_model_call_handlers(
     handlers: Sequence[_ModelCallHandler[ContextT]],
 ) -> _ComposedModelCallHandler[ContextT] | None:
-    """Compose multiple ``wrap_model_call`` handlers into single middleware stack.
+    """Compose multiple `wrap_model_call` handlers into single middleware stack.
 
     Composes handlers so first in list becomes outermost layer. Each handler receives a
     handler callback to execute inner layers. Commands from each layer are accumulated
@@ -232,8 +232,8 @@ def _chain_model_call_handlers(
             First handler wraps all others.
 
     Returns:
-        Composed handler returning ``_ComposedExtendedModelResponse``,
-        or ``None`` if handlers empty.
+        Composed handler returning `_ComposedExtendedModelResponse`,
+        or `None` if handlers empty.
     """
     if not handlers:
         return None
@@ -312,7 +312,7 @@ def _chain_model_call_handlers(
 def _chain_async_model_call_handlers(
     handlers: Sequence[_AsyncModelCallHandler[ContextT]],
 ) -> _ComposedAsyncModelCallHandler[ContextT] | None:
-    """Compose multiple async ``wrap_model_call`` handlers into single middleware stack.
+    """Compose multiple async `wrap_model_call` handlers into single middleware stack.
 
     Commands from each layer are accumulated into a list (inner-first, then outer)
     without merging.
@@ -323,8 +323,8 @@ def _chain_async_model_call_handlers(
             First handler wraps all others.
 
     Returns:
-        Composed async handler returning ``_ComposedExtendedModelResponse``,
-        or ``None`` if handlers empty.
+        Composed async handler returning `_ComposedExtendedModelResponse`,
+        or `None` if handlers empty.
     """
     if not handlers:
         return None
