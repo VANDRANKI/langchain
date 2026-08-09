@@ -11,7 +11,17 @@ def maximal_marginal_relevance(
     lambda_mult: float = 0.5,
     k: int = 4,
 ) -> list[int]:
-    """Calculate maximal marginal relevance."""
+    """Calculate maximal marginal relevance.
+
+    Args:
+        query_embedding: The query embedding.
+        embedding_list: A list of embeddings to select from.
+        lambda_mult: The lambda parameter for MMR.
+        k: The number of embeddings to return.
+
+    Returns:
+        A list of indices of the embeddings to return.
+    """
     if min(k, len(embedding_list)) <= 0:
         return []
     if query_embedding.ndim == 1:
@@ -40,7 +50,19 @@ def maximal_marginal_relevance(
 
 
 def cosine_similarity(X: Matrix, Y: Matrix) -> np.ndarray:  # noqa: N803
-    """Row-wise cosine similarity between two equal-width matrices."""
+    """Row-wise cosine similarity between two equal-width matrices.
+
+    Args:
+        X: The first matrix.
+        Y: The second matrix.
+
+    Returns:
+        A matrix of shape `(len(X), len(Y))` containing the pairwise cosine
+        similarities, or an empty array if either input is empty.
+
+    Raises:
+        ValueError: If `X` and `Y` do not have the same number of columns.
+    """
     if len(X) == 0 or len(Y) == 0:
         return np.array([])
 
