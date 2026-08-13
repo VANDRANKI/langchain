@@ -120,7 +120,7 @@ async def tee_peer(
         iterator: The shared iterator.
         buffer: The buffer for this peer.
         peers: The buffers of all peers.
-        lock: The lock to synchronise access to the shared buffers.
+        lock: The lock to synchronize access to the shared buffers.
 
     Yields:
         The next item from the shared iterator.
@@ -195,7 +195,7 @@ class Tee(Generic[T]):
     To enforce sequential use of `anext`, provide a `lock`
 
     - e.g. an `asyncio.Lock` instance in an `asyncio` application - and access is
-        automatically synchronised.
+        automatically synchronized.
 
     """
 
@@ -211,7 +211,7 @@ class Tee(Generic[T]):
         Args:
             iterable: The iterable to split.
             n: The number of iterators to create.
-            lock: The lock to synchronise access to the shared buffers.
+            lock: The lock to synchronize access to the shared buffers.
 
         """
         self._iterator = iterable.__aiter__()  # before 3.10 aiter() doesn't exist
