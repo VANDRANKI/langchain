@@ -270,13 +270,13 @@ class DockerExecutionPolicy(BaseExecutionPolicy):
     Choose this policy when commands originate from untrusted users or you require
     strong isolation between sessions. By default the workspace is bind-mounted only
     when it refers to an existing non-temporary directory; ephemeral sessions run
-    without a mount to minimise host exposure. The container's network namespace is
+    without a mount to minimize host exposure. The container's network namespace is
     disabled by default (`--network none`) and you can enable further hardening via
     `read_only_rootfs` and `user`.
 
     The security guarantees depend on your Docker daemon configuration. Run the agent on
     a host where Docker is locked down (rootless mode, AppArmor/SELinux, etc.) and
-    review any additional volumes or capabilities passed through ``extra_run_args``. The
+    review any additional volumes or capabilities passed through `extra_run_args`. The
     default image is `python:3.12-alpine3.19`; supply a custom image if you need
     preinstalled tooling.
     """
